@@ -1,92 +1,82 @@
 'use strict'
 
-/** @typedef {import('@adonisjs/framework/src/Request')} Request */
-/** @typedef {import('@adonisjs/framework/src/Response')} Response */
-/** @typedef {import('@adonisjs/framework/src/View')} View */
+const Student = use('App/Models/Student')
 
-/**
- * Resourceful controller for interacting with students
- */
 class StudentController {
-  /**
-   * Show a list of all students.
-   * GET students
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async index ({ request, response, view }) {
+
+  async index() {
+    const students = Student.all()
+    return students;
   }
 
-  /**
-   * Render a form to be used for creating a new student.
-   * GET students/create
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async create ({ request, response, view }) {
+  async store({ request }) {
+    const data = request.only([
+      'cpf',
+      'name',
+      'rg',
+      'primary_phone_contact',
+      'secondary_phone_contact',
+      'gender',
+      'date_birth',
+      'cep',
+      'address',
+      'neighborhood',
+      'city',
+      'state',
+      'number',
+      'complement',
+      'father_name',
+      'mother_name',
+      'email'
+    ]);
+
+    const student = await Student.create(data);
+    return student;
   }
 
-  /**
-   * Create/save a new student.
-   * POST students
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async store ({ request, response }) {
+  async show({ params, response }) {
+    try {
+      const student = await Student.findOrFail(params.id)
+      return student
+    } catch (error) {
+      return response
+        .status(error.status)
+        .send({ error: { message: 'Student não encontrado' } })
+    }
   }
 
-  /**
-   * Display a single student.
-   * GET students/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async show ({ params, request, response, view }) {
-  }
+  async update({ params, request, response }) {
+    try {
+      const student = await Student.findOrFail(params.id)
+      const data = request.only([
+        'cpf',
+        'name',
+        'rg',
+        'primary_phone_contact',
+        'secondary_phone_contact',
+        'gender',
+        'date_birth',
+        'cep',
+        'address',
+        'neighborhood',
+        'city',
+        'state',
+        'number',
+        'complement',
+        'father_name',
+        'mother_name',
+        'email'
+      ]);
 
-  /**
-   * Render a form to update an existing student.
-   * GET students/:id/edit
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async edit ({ params, request, response, view }) {
-  }
+      student.merge(data)
+      student.save()
 
-  /**
-   * Update student details.
-   * PUT or PATCH students/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async update ({ params, request, response }) {
-  }
-
-  /**
-   * Delete a student with id.
-   * DELETE students/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async destroy ({ params, request, response }) {
+      return student
+    } catch (error) {
+      return response
+        .status(error.status)
+        .send({ error: { message: 'student nao encontrado' } })
+    }
   }
 }
 
